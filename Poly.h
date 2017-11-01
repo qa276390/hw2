@@ -14,9 +14,13 @@ private:
 
 public:
 	int NO;
-	Node(){x=0;y=0;}
+	Node(){x=0;y=0;intersectNode=NULL;}
+	Node(float a,float b){x=a;y=b;intersectNode=NULL;}
+
 	Node * nextNode;
 	Node * lastNode;
+	Node * intersectNode;
+
 	void setNode(double xn,double yn)
 	{x=xn;y=yn;}	
 	void setvec(double xn,double yn)
@@ -31,6 +35,9 @@ public:
 	double getcavepoint(){return cavepoint;}
 	void setangle(double a){angle=a;}
 	double getangle(){return angle;}
+	Node* operator-(Node*);
+	Node* operator+(Node*);
+	Node* operator*(const float&);
 };
 
 

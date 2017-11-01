@@ -11,10 +11,13 @@ using namespace std;
 
 bool Simple(Poly* pl);
 float cross(Node* o,Node* a,Node* b);
+float dot(Node* o,Node* a,Node* b);
 bool intersect1D(double ,double,double,double);
 bool intersect(Node*,Node*,Node*,Node*);
 void concave(int pos,int neg,double PArea,double NArea,Poly* poly);
+Node* intersection(Node *a1,Node* a2,Node* b1,Node* b2);
 void show(Poly* poly);
+bool in_polygon(Node* n,Poly* p);
 
 int main(){
 	int num,nNode;
@@ -44,7 +47,11 @@ int main(){
 			{tmNode->nextNode=polylist[idx].getstart();}
 			else
 			{tmNode->nextNode=new Node();}
-	
+			if(idx==1)
+			{
+				in_polygon(tmNode,&polylist[0]);
+				cout<<"Inside"<<endl;
+			}
 			xed=xnew;
 			yed=ynew;
 			tmNode=tmNode->nextNode;
@@ -56,17 +63,21 @@ int main(){
 		
 		Node *tmpNode=polylist[idx].getstart();
 		bool intersects=false;
-		
+	//	cout<<"1"<<endl;	
 		tmpNode=polylist[idx].getstart();
 		Node* itmpNode;
 		for(int jdx=0;jdx<polylist[idx].getN();jdx++)
 		{	
+	//		cout<<"2"<<endl;	
 			Node* itmpNode=polylist[idx+1].getstart();
 			for(int kdx=0;kdx<polylist[idx+1].getN();kdx++)
 			{
+	//			cout<<"3"<<endl;	
 				if(intersect(tmpNode,tmpNode->nextNode,itmpNode,itmpNode->nextNode))
 				{
-					cout<<"Intersection"<<endl;
+	//				cout<<"4"<<endl;	
+					Node *intersectNode=intersection(tmpNode,tmpNode->nextNode,itmpNode,itmpNode->nextNode);
+					cout<<"Intersection:"<<intersectNode->getx()<<","<<intersectNode->gety()<<endl;
 				}
 				itmpNode=itmpNode->nextNode;
 
@@ -79,73 +90,11 @@ int main(){
 } 
 void show(Poly* poly)
 {
-	/*	
-	if(poly->simple==false)
-	{
-		cout<<"\n(a) This polygon is not a simple polygon."<<endl;
-		cout<<"(b) Intersected Edges:"<<poly->intersects<<endl;
-		
-	}
-	else
-	{*/
-		//cout<<"\n(a) This polygon is a simple polygon."<<endl;
-		if(poly->concave==true)
-		{
-			cout<<"\n(a) Concave.\n(b) ";
-			Node *tmpNode=poly->getstart();
-			int count=0;
-			for(int idx=0;idx<poly->getN();idx++)
-			{
-				if(tmpNode->getcavepoint()==1)
-				{
-					if(count)
-						cout<<",";
-						
-					cout<<tmpNode->NO;
-					count++;
-				}
-				tmpNode=tmpNode->nextNode;
-			}
-			cout<<"\n";
-		}
-		else
-		{
-			cout<<"\n(a) Convex. \n";
-			cout<<"(b) \n";
-		}
-		if(poly->simple==false)
-		{
-			cout<<"(c) Not simple \n";
-			cout<<"(d) "<<poly->intersects<<endl;	
-		}
-		else
-		{
-			cout<<"(c) Simple"<<endl;
-			cout<<"(d) "<<endl;
-		}
-			
-	//}
 
 }
-void concave(int pos,int neg,double PArea,double NArea,Poly* poly)
+float dot(Node* o,Node* a,Node* b)
 {
-	int cavesign;
-
-	if(pos<3||neg<3)
-	{cavesign=(pos>neg)?-1:1;}
-	else
-	{cavesign=(PArea>NArea)?-1:1;}
-	Node* tmpNode=poly->getstart();
-	for(int jdx=0;jdx<poly->getN();jdx++)
-	{	
-		if(tmpNode->getoutter()*cavesign>0)
-		{
-			tmpNode->setcavepoint(1);
-			poly->concave=true;
-		}
-		tmpNode=tmpNode->nextNode;
-		
-	}
+	return (a->getx()-o->getx())*(b->getx()-o->getx())+(a->gety()-o->gety())*(b->gety()-o->gety());
 }
 float cross(Node* o,Node* a,Node* b)
 {
@@ -172,4 +121,60 @@ bool intersect(Node *a1,Node *a2,Node *b1,Node *b2)
 	&& cross(a1,a2,b1)*cross(a1,a2,b2)<=0
 	&& cross(b1,b2,a1)*cross(b1,b2,a2)<=0;
 
+}
+bool intersect(Node *p,Node *p1,Node *p2)
+{
+	return cross(p,p1,p2) == 0 && dot(p,p1,p2) <= 0;
+}
+Node* intersection(Node *a1,Node* a2,Node* b1,Node* b2)
+{
+	cout<<"a"<<endl;
+	Node* a = *a2 - a1;
+	Node* b = *b2 - b1;
+	Node* s = *b1 - a1;
+	cout<<"b"<<endl;
+    	float c1 = cross(new Node(0,0),a, b);
+   	float c2 = cross(new Node(0,0),s, b);
+    	float c4 = cross(new Node(0,0),s, a); 
+ 	cout<<"c"<<endl;
+    	if (c1 < 0){c1 = -c1, c2 = -c2, c4 = -c4;}
+ 
+    	if (c1 != 0 && c2 >= 0 && c2 <= c1 && c4 >= 0 && c4 <= c1)
+        	return *a1 + (*a * (c2 / c1));
+    	else
+        	return NULL; 
+}
+bool in_polygon(Node* n,Poly* p)
+{
+	int N=p->getN();
+	bool c=false;
+	Node* tmp=p->getstart();
+	for(int i=0;i<=N;i++)
+	{
+		if((tmp->gety()>n->gety())!=(tmp->lastNode->gety()>n->gety()) && (n->getx() <(tmp->lastNode->getx()-tmp->getx())*(n->gety()-tmp->gety())/(tmp->lastNode->gety()-tmp->gety())+n->getx()))
+			c=!c;
+	}
+	return c;
+}
+
+Node* Node::operator-(Node* n2)
+{
+	Node* newNode=new Node();
+	newNode->setNode(this->getx()-n2->getx(),this->gety()-n2->gety());
+	
+	return newNode;
+}
+Node* Node::operator+(Node* n2)
+{
+	Node* newNode=new Node();
+	newNode->setNode(this->getx()+n2->getx(),this->gety()+n2->gety());
+	
+	return newNode;
+}
+Node* Node::operator*(const float& l)
+{
+	Node* newNode=new Node();
+	newNode->setNode(this->getx()*l,this->gety()*l);
+	
+	return newNode;
 }
