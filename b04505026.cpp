@@ -21,10 +21,9 @@ void show(Poly* poly);
 bool in_polygon(Node* n,Poly* p);
 bool Inside(Poly*,Poly*);
 void showNode(Node *tempNode);
-Node* crama(Node *a1,Node* a2,Node* b1,Node* b2);
 int AorB(Poly* polylist,Poly* poly);
+double dot(Node*,Node*);
 double cross(Node*,Node*);
-//void AandB(Poly* polylist);
 int AminusBaround(Poly* polylist,Poly** poly);
 void AminusB(Poly* polylist,Node* startNodei,Poly* poly);
 int AandB(Poly*,Poly*);
@@ -80,9 +79,6 @@ int main(){
 			Node* itmpNode=polylist[idx+1].getstart();
 			for(int kdx=0;kdx<polylist[idx+1].getN()*2;kdx++)
 			{
-				/*Node *tNode;
-				if((tNode=crama(tmpNode,tmpNode->nextNode,itmpNode,itmpNode->nextNode))!=NULL)
-					showNode(tNode);*/
 				if(intersect(tmpNode,tmpNode->nextNode,itmpNode,itmpNode->nextNode))
 				{
 					intersects=true;	
@@ -93,7 +89,7 @@ int main(){
 					//cout<<endl;
 					if(!(*intersectNode==tmpNode)&&!(*intersectNode==tmpNode->nextNode))
 					{
-						cout<<"1"<<endl;
+						//cout<<"1"<<endl;
 						Node *iNode=new Node(intersectNode);
 						iNode->vecx=tmpNode->vecx;
 						iNode->vecy=tmpNode->vecy;
@@ -105,7 +101,7 @@ int main(){
 					}	
 					if(!(*intersectNode==itmpNode)&&!(*intersectNode==itmpNode->nextNode))
 					{
-						cout<<"2"<<endl;
+						//cout<<"2"<<endl;
 						Node *inNode=new Node(intersectNode);
 						inNode->vecx=itmpNode->vecx;
 						inNode->vecy=itmpNode->vecy;
@@ -180,7 +176,7 @@ int main(){
 						}
 					
 					}
-					//cout<<"Intersection:"<<intersectNode->getx()<<","<<intersectNode->gety()<<endl;
+				
 				}
 				itmpNode=itmpNode->nextNode;
 
@@ -230,6 +226,13 @@ int AandB(Poly* polylist,Poly* poly)
 		{	outputstart=true;endNode=tmpNode;endNode2=tmpNode->intersectNode;}
 		if(outputstart==true)
 		{
+			if(tmpNode->intersect&&(cross(tmpNode,tmpNode->intersectNode)==0)&&(dot(tmpNode,tmpNode->intersectNode)<0))
+			{
+				if(tmpNode->nextNode->intersect)
+				{	endNode=tmpNode->nextNode->nextNode;}
+				else
+				{	endNode=tmpNode->nextNode;}
+			}
 			if(tmpNode->intersect&&(cross(tmpNode,tmpNode->intersectNode)>0))
 			{
 			//	cout<<"-----TURN-----"<<endl;
@@ -334,7 +337,7 @@ void AminusB(Poly* polylist,Node* startNode,Poly* poly)
 void show(Poly* poly)
 {
 	//cout<<"--------SHOW--------"<<endl;
-	cout<<"N       "<<poly->n<<endl;
+	cout<<"N       "<<(poly->n)+1<<endl;
 	Node* tempNode=poly->getstart();
 	do{
 		showNode(tempNode);
@@ -371,8 +374,12 @@ bool Inside(Poly* polyA,Poly *polyB)
 	return inside;
 }
 double cross(Node *a,Node *b)
-{//	cout<<"In Cross:"<<(a->vecx)<<" "<<(b->vecy)<<" "<<(a->vecy)<<" "<<(b->vecx)<<endl;
+{
 	return ((a->vecx)*(b->vecy))-((a->vecy)*(b->vecx));
+}
+double dot(Node *a,Node *b)
+{ 
+	return ((a->vecx)*(b->vecx))+((a->vecy)*(b->vecy));
 }
 float dot(Node* o,Node* a,Node* b)
 {
@@ -403,31 +410,6 @@ bool intersect(Node *a1,Node *a2,Node *b1,Node *b2)
 	&& cross(a1,a2,b1)*cross(a1,a2,b2)<=0
 	&& cross(b1,b2,a1)*cross(b1,b2,a2)<=0;
 
-}
-Node* crama(Node *a1,Node* a2,Node* b1,Node* b2)
-{
-	double A1=(a2->gety()-a1->gety());
-	double B1=-(a2->getx()-a1->getx());
-	double A2=(b2->gety()-b1->gety());
-	double B2=-(b2->getx()-b1->getx());
-	double c1=A1*a1->getx()+B1*a1->gety();
-	double c2=A2*b1->getx()+B2*b1->gety();
-
-	double delta=A1*B2-B1*A2;
-	double deltaX=c1*B2-B1*c2;
-	double deltaY=A1*c2-c1*A2;
-
-	double X,Y;
-	if(delta!=0)
-	{
-		X=deltaX/delta;
-		Y=deltaY/delta;
-		cout<<"X="<<X<<endl;
-		cout<<"Y="<<Y<<endl;
-		return new Node(X,Y);
-	}
-	else
-		return NULL;
 }
 bool intersect(Node *p,Node *p1,Node *p2)
 {
