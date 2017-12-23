@@ -27,6 +27,8 @@ double cross(Node*,Node*);
 int AminusBaround(Poly* polylist,Poly** poly);
 void AminusB(Poly* polylist,Node* startNodei,Poly* poly);
 int AandB(Poly*,Poly*);
+bool Parallel(Node*,Node*);
+Node* Parel_intersection(Node *a1,Node* a2,Node* b1,Node* b2);
 
 int main(){
 	int num,nNode;
@@ -65,6 +67,8 @@ int main(){
 		tmNode->setvec(tmNode->nextNode->x-tmNode->x,tmNode->nextNode->y-tmNode->y);
 	
 	}
+	//show(&polylist[0]);
+	//show(&polylist[1]);
 	//bool inside=Inside(polylist);
 	for(int idx=0;idx<num;idx++){
 		
@@ -79,17 +83,24 @@ int main(){
 			Node* itmpNode=polylist[idx+1].getstart();
 			for(int kdx=0;kdx<polylist[idx+1].getN()*2;kdx++)
 			{
-				if(intersect(tmpNode,tmpNode->nextNode,itmpNode,itmpNode->nextNode))
+				/*if(Parallel(tmpNode,itmpNode))
+						continue;
+				else*/
+				if(intersection(tmpNode,tmpNode->nextNode,itmpNode,itmpNode->nextNode)!=NULL)
 				{
 					intersects=true;	
 					bool add=false,iadd=false;
-	//				cout<<"4"<<endl;	
-					Node *intersectNode=intersection(tmpNode,tmpNode->nextNode,itmpNode,itmpNode->nextNode);
+				/*	cout<<"!!!"<<endl;
+					showNode(tmpNode);
+					showNode(tmpNode->nextNode);
+					showNode(itmpNode);
+					showNode(itmpNode->nextNode);
+				*/	Node *intersectNode=intersection(tmpNode,tmpNode->nextNode,itmpNode,itmpNode->nextNode);
 					//showNode(intersectNode);
 					//cout<<endl;
 					if(!(*intersectNode==tmpNode)&&!(*intersectNode==tmpNode->nextNode))
 					{
-						//cout<<"1"<<endl;
+					//	cout<<"1"<<endl;
 						Node *iNode=new Node(intersectNode);
 						iNode->vecx=tmpNode->vecx;
 						iNode->vecy=tmpNode->vecy;
@@ -183,7 +194,7 @@ int main(){
 			}	
 			tmpNode=tmpNode->nextNode;
 		}
-		//show(&polylist[idx]);	
+		show(&polylist[idx]);	
 	}
 	//Node** Nodelist=new Node*[2*(polylist[0].getN()+polylist[1].getN())];
 	Poly *poly_0=new Poly();
@@ -206,6 +217,7 @@ int main(){
 			break;
 		else 
 			show(poly_2[i]);}
+	show(&polylist[0]);
 } 
 int AandB(Poly* polylist,Poly* poly)
 {
@@ -373,6 +385,14 @@ bool Inside(Poly* polyA,Poly *polyB)
 	
 	return inside;
 }
+bool Parallel(Node* a,Node* b)
+{
+	if((a->vecx*b->vecy)-(a->vecy*b->vecx)==0)
+		return true;
+	else
+		return false;
+
+}
 double cross(Node *a,Node *b)
 {
 	return ((a->vecx)*(b->vecy))-((a->vecy)*(b->vecx));
@@ -431,7 +451,22 @@ Node* intersection(Node *a1,Node* a2,Node* b1,Node* b2)
     	if (c1 != 0 && c2 >= 0 && c2 <= c1 && c4 >= 0 && c4 <= c1)
         	return *a1 + (*a * (c2 / c1));
     	else
-        	return NULL; 
+        	return Parel_intersection(a1,a2,b1,b2); 
+}
+Node* Parel_intersection(Node *a1,Node* a2,Node* b1,Node* b2)
+{
+	cout<<"Parallel intersection"<<endl;
+	Node* A1=new Node(a1);
+	Node* A2=new Node(a2);
+	Node* B1=new Node(b1);
+	Node* B2=new Node(b2);
+	if(*A1==B1 && dot(A1,A2,B2)<=0) return A1;
+	if(*A1==B2 && dot(A1,A2,B1)<=0) return A1;
+	if(*A2==B1 && dot(A2,A1,B2)<=0) return A2;
+	if(*A2==B1 && dot(A2,A1,B1)<=0) return A2;
+
+	return NULL;
+
 }
 bool in_polygon(Node* n,Poly* p)
 {
