@@ -194,7 +194,7 @@ int main(){
 			}	
 			tmpNode=tmpNode->nextNode;
 		}
-		show(&polylist[idx]);	
+	//	show(&polylist[idx]);	
 	}
 	//Node** Nodelist=new Node*[2*(polylist[0].getN()+polylist[1].getN())];
 	Poly *poly_0=new Poly();
@@ -217,7 +217,7 @@ int main(){
 			break;
 		else 
 			show(poly_2[i]);}
-	show(&polylist[0]);
+	//show(&polylist[0]);
 } 
 int AandB(Poly* polylist,Poly* poly)
 {
@@ -455,7 +455,7 @@ Node* intersection(Node *a1,Node* a2,Node* b1,Node* b2)
 }
 Node* Parel_intersection(Node *a1,Node* a2,Node* b1,Node* b2)
 {
-	cout<<"Parallel intersection"<<endl;
+	//cout<<"Parallel intersection"<<endl;
 	Node* A1=new Node(a1);
 	Node* A2=new Node(a2);
 	Node* B1=new Node(b1);
